@@ -1,1 +1,103 @@
+-- =============================================
+-- EXERCISE 4: CREATE TABLES
+-- =============================================
+
+-- Table 1: Location
+CREATE TABLE CW1.Location (
+    LocationID INT IDENTITY(1,1) PRIMARY KEY,
+    LocationName NVARCHAR(200) NOT NULL,
+    Postcode NVARCHAR(20) NULL,
+    Town NVARCHAR(100) NULL,
+    Latitude DECIMAL(9,6) NULL,
+    Longitude DECIMAL(9,6) NULL
+);
+GO
+
+-- Table 2: Trail
+CREATE TABLE CW1.Trail (
+    TrailID INT IDENTITY(1,1) PRIMARY KEY,
+    TrailName NVARCHAR(200) NOT NULL,
+    Summary NVARCHAR(500) NULL,
+    TrailDescription NVARCHAR(MAX) NULL,
+    Length_Miles DECIMAL(5,2) NULL CHECK (Length_Miles >= 0),
+    Length_Km DECIMAL(5,2) NULL CHECK (Length_Km >= 0),
+    Difficulty NVARCHAR(50) NULL 
+        CHECK (Difficulty IN ('Easy','Moderate','Hard','Challenging')),
+    AccessibilityNotes NVARCHAR(500) NULL,
+    RouteType NVARCHAR(50) NULL,
+    NearestTown NVARCHAR(100) NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    CreatedBy NVARCHAR(100) NULL
+);
+GO
+
+-- Table 3: TrailRoute (Link Entity)
+CREATE TABLE CW1.TrailRoute (
+    TrailID INT PRIMARY KEY,
+    StartLocationID INT NOT NULL,
+    FinishLocationID INT NOT NULL,
+    CONSTRAINT FK_TrailRoute_Trail 
+        FOREIGN KEY (TrailID) REFERENCES CW1.Trail(TrailID),
+    CONSTRAINT FK_TrailRoute_StartLoc 
+        FOREIGN KEY (StartLocationID) REFERENCES CW1.Location(LocationID),
+    CONSTRAINT FK_TrailRoute_FinishLoc 
+        FOREIGN KEY (FinishLocationID) REFERENCES CW1.Location(LocationID)
+);
+GO
+
+-- Log Table (for Exercise 7 Trigger)
+CREATE TABLE CW1.TrailLog (
+    LogID INT IDENTITY(1,1) PRIMARY KEY,
+    TrailID INT NOT NULL,
+    TrailName NVARCHAR(200) NOT NULL,
+    Action NVARCHAR(50) NOT NULL,
+    ActionBy NVARCHAR(100) NULL,
+    ActionDate DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+-- =============================================
+-- DEMO DATA
+-- =============================================
+
+-- Insert Locations
+INSERT INTO CW1.Location (LocationName, Postcode, Town, Latitude, Longitude)
+VALUES 
+('Admirals Hard, Stonehouse', 'PL1 3RJ', 'Plymouth', 50.3682, -4.1567),
+('Jennycliff', 'PL9 9SW', 'Plymouth', 50.3421, -4.1234),
+('The Hoe', 'PL1 2PA', 'Plymouth', 50.3654, -4.1432),
+('Plymbridge Woods Car Park', 'PL7 4SU', 'Plymouth', 50.4123, -4.0876),
+('Shaugh Bridge', 'PL7 5HD', 'Shaugh Prior', 50.4456, -4.0321);
+GO
+
+-- Insert Trails
+INSERT INTO CW1.Trail (TrailName, Summary, TrailDescription, Length_Miles,
+    Length_Km, Difficulty, AccessibilityNotes, RouteType, NearestTown, CreatedBy)
+VALUES 
+('Plymouth Waterfront Walkway', 
+ 'Gentle coastal walk along Plymouth''s historic waterfront',
+ 'A scenic walk taking in naval history, the Hoe, and stunning coastal views. The route passes historic sites including the Royal Citadel, Smeaton''s Tower, and offers panoramic views of Plymouth Sound.',
+ 9.3, 14.9, 'Moderate', 'Mostly flat, some steps near Hoe', 'Linear', 
+ 'Plymouth', 'admin'),
+
+('Plymbridge Circular', 
+ 'Woodland walk through Plymbridge Woods',
+ 'Beautiful circular route through ancient woodland and along the river Plym. Features include the old railway viaduct, the National Trust woodland, and abundant wildlife.',
+ 3.5, 5.6, 'Easy', 'Some uneven paths, suitable for families', 'Circular', 
+ 'Plymouth', 'admin'),
+
+('Shaugh Prior Loop', 
+ 'Moorland and valley walk with river views',
+ 'A challenging route combining moorland terrain with river valley scenery. The walk takes you through Shaugh Prior village and along the River Plym with dramatic granite tors.',
+ 6.2, 10.0, 'Challenging', 'Steep sections, not suitable for wheelchairs',
+ 'Circular', 'Shaugh Prior', 'admin');
+GO
+
+-- Insert Trail Routes
+INSERT INTO CW1.TrailRoute (TrailID, StartLocationID, FinishLocationID)
+VALUES 
+(1, 1, 2),  -- Plymouth Waterfront: Admirals Hard to Jennycliff
+(2, 4, 4),  -- Plymbridge Circular: starts and ends at car park
+(3, 5, 5);  -- Shaugh Prior Loop: starts and ends at Shaugh Bridge
+GO
 
