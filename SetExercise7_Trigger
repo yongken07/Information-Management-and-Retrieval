@@ -1,1 +1,50 @@
+-- =============================================
+-- EXERCISE 7: TRIGGER
+-- =============================================
 
+CREATE TRIGGER CW1.trg_LogNewTrail
+ON CW1.Trail
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    INSERT INTO CW1.TrailLog (TrailID, TrailName, Action, ActionBy, ActionDate)
+    SELECT 
+        i.TrailID,
+        i.TrailName,
+        'INSERT',
+        COALESCE(i.CreatedBy, SYSTEM_USER),
+        GETDATE()
+    FROM inserted i;
+END;
+GO
+
+-- =============================================
+-- VERIFICATION QUERIES (for Screenshots)
+-- =============================================
+
+-- Verify Location data
+PRINT '=== CW1.Location ===' 
+SELECT * FROM CW1.Location;
+GO
+
+-- Verify Trail data
+PRINT '=== CW1.Trail ===' 
+SELECT * FROM CW1.Trail;
+GO
+
+-- Verify TrailRoute data
+PRINT '=== CW1.TrailRoute ===' 
+SELECT * FROM CW1.TrailRoute;
+GO
+
+-- Verify View
+PRINT '=== CW1.vw_TrailDetails ===' 
+SELECT * FROM CW1.vw_TrailDetails;
+GO
+
+-- Verify Log (should have entries from initial inserts due to trigger)
+PRINT '=== CW1.TrailLog ===' 
+SELECT * FROM CW1.TrailLog;
+GO
