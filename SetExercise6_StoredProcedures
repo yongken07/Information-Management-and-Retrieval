@@ -1,1 +1,90 @@
+-- =============================================
+-- EXERCISE 6: STORED PROCEDURES (CRUD)
+-- =============================================
 
+-- CREATE - Insert New Trail
+CREATE PROCEDURE CW1.sp_InsertTrail
+    @TrailName NVARCHAR(200),
+    @Summary NVARCHAR(500) = NULL,
+    @TrailDescription NVARCHAR(MAX) = NULL,
+    @Length_Miles DECIMAL(5,2) = NULL,
+    @Length_Km DECIMAL(5,2) = NULL,
+    @Difficulty NVARCHAR(50) = NULL,
+    @AccessibilityNotes NVARCHAR(500) = NULL,
+    @RouteType NVARCHAR(50) = NULL,
+    @NearestTown NVARCHAR(100) = NULL,
+    @CreatedBy NVARCHAR(100) = NULL,
+    @NewTrailID INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO CW1.Trail (TrailName, Summary, TrailDescription,
+        Length_Miles, Length_Km, Difficulty, AccessibilityNotes,
+        RouteType, NearestTown, CreatedBy)
+    VALUES (@TrailName, @Summary, @TrailDescription,
+        @Length_Miles, @Length_Km, @Difficulty, @AccessibilityNotes,
+        @RouteType, @NearestTown, @CreatedBy);
+    SET @NewTrailID = SCOPE_IDENTITY();
+END;
+GO
+
+-- READ - Get Single Trail by ID
+CREATE PROCEDURE CW1.sp_GetTrailByID
+    @TrailID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT * FROM CW1.Trail WHERE TrailID = @TrailID;
+END;
+GO
+
+-- READ - Get All Trails
+CREATE PROCEDURE CW1.sp_GetAllTrails
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT * FROM CW1.Trail ORDER BY TrailName;
+END;
+GO
+
+-- UPDATE - Modify Existing Trail
+CREATE PROCEDURE CW1.sp_UpdateTrail
+    @TrailID INT,
+    @TrailName NVARCHAR(200),
+    @Summary NVARCHAR(500) = NULL,
+    @TrailDescription NVARCHAR(MAX) = NULL,
+    @Length_Miles DECIMAL(5,2) = NULL,
+    @Length_Km DECIMAL(5,2) = NULL,
+    @Difficulty NVARCHAR(50) = NULL,
+    @AccessibilityNotes NVARCHAR(500) = NULL,
+    @RouteType NVARCHAR(50) = NULL,
+    @NearestTown NVARCHAR(100) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE CW1.Trail SET
+        TrailName = @TrailName,
+        Summary = @Summary,
+        TrailDescription = @TrailDescription,
+        Length_Miles = @Length_Miles,
+        Length_Km = @Length_Km,
+        Difficulty = @Difficulty,
+        AccessibilityNotes = @AccessibilityNotes,
+        RouteType = @RouteType,
+        NearestTown = @NearestTown
+    WHERE TrailID = @TrailID;
+END;
+GO
+
+-- DELETE - Remove Trail
+CREATE PROCEDURE CW1.sp_DeleteTrail
+    @TrailID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- First delete from TrailRoute (child table)
+    DELETE FROM CW1.TrailRoute WHERE TrailID = @TrailID;
+    -- Then delete from Trail
+    DELETE FROM CW1.Trail WHERE TrailID = @TrailID;
+END;
+GO
