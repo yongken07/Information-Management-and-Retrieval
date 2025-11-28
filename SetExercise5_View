@@ -1,1 +1,30 @@
+-- =============================================
+-- EXERCISE 5: VIEW
+-- =============================================
+
+CREATE VIEW CW1.vw_TrailDetails AS
+SELECT 
+    t.TrailID,
+    t.TrailName,
+    t.Summary,
+    t.TrailDescription,
+    t.Length_Miles,
+    t.Length_Km,
+    t.Difficulty,
+    t.AccessibilityNotes,
+    t.RouteType,
+    t.NearestTown,
+    sl.LocationName AS StartLocation,
+    sl.Postcode AS StartPostcode,
+    sl.Town AS StartTown,
+    fl.LocationName AS FinishLocation,
+    fl.Postcode AS FinishPostcode,
+    fl.Town AS FinishTown,
+    t.CreatedDate,
+    t.CreatedBy
+FROM CW1.Trail t
+INNER JOIN CW1.TrailRoute tr ON t.TrailID = tr.TrailID
+INNER JOIN CW1.Location sl ON tr.StartLocationID = sl.LocationID
+INNER JOIN CW1.Location fl ON tr.FinishLocationID = fl.LocationID;
+GO
 
